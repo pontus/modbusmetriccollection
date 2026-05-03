@@ -1,7 +1,7 @@
 # Example config to read from two modbus sources and push
 # to a victoriametrics instance
-vmURL: "http://192.168.25.1:8428/api/v1/import/prometheus"
-modbusTimeout: 3s
+VMURL: "http://192.168.25.1:8428/api/v1/import/prometheus"
+modbusTimeout: 1s
 pushTimeout: 10s
 updateDelay: 5s
 cacheValidTime: 10s
