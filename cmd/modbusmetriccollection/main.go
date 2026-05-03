@@ -252,13 +252,13 @@ func (c *config) doReadRegisters(
 	t modbus.RegType) ([]uint16, error) {
 
 	c.mutex.Lock()
-	defer c.mutex.Unlock()
 
 	c.cleanInvalidCaches()
 
 	vals, err := c.inCache(client, base, count)
 
 	if err == nil {
+		c.mutex.Unlock()
 		return vals, nil
 	}
 
@@ -278,12 +278,18 @@ func (c *config) doReadRegisters(
 		toRead = uint16(64)
 	}
 
+	c.mutex.Unlock()
+
+	waitBetween := c.ModbusTimeout
+
 	i := 0
 
 	for i < 400 {
 		var v []uint16
 		v, err = client.ReadRegisters(base, toRead, t)
 		if err == nil {
+
+			c.mutex.Lock()
 
 			// Note for future use
 			clientGoodLengths[base] = toRead
@@ -294,12 +300,19 @@ func (c *config) doReadRegisters(
 				vals:      v,
 				timestamp: time.Now().Unix(),
 			})
+			c.mutex.Unlock()
 
 			return v[:count], err
 		}
 
 		fmt.Printf("Read at %v of %v entries failed with %v (count %v)\n", base, toRead, err, i)
-		time.Sleep(c.ModbusTimeout)
+
+		if toRead == count {
+			// If failing but not because we're asking too much, back off!
+			waitBetween *= 2
+		}
+
+		time.Sleep(waitBetween)
 
 		i++
 		toRead /= 2 // try less next time
