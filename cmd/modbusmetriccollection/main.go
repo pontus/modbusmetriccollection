@@ -142,7 +142,7 @@ func makeLine(s source, r ri, vals []uint16) string {
 
 		if r.IsSigned {
 			return fmt.Sprintf(formatString, r.Name,
-				float64(int16(vals[0]))/r.Divisor, time.Now().Unix()) //nolint:G115
+				float64(int16(vals[0]))/r.Divisor, time.Now().Unix()) //nolint:gosec // disable G115
 		}
 		return fmt.Sprintf(formatString, r.Name, float64(vals[0])/r.Divisor, time.Now().Unix())
 	}
@@ -155,7 +155,7 @@ func makeLine(s source, r ri, vals []uint16) string {
 		}
 		if r.IsSigned {
 			return fmt.Sprintf(formatString, r.Name,
-				float64(int32(v))/r.Divisor, time.Now().Unix()) //nolint:G115
+				float64(int32(v))/r.Divisor, time.Now().Unix()) //nolint:gosec // disable:G115
 		}
 		return fmt.Sprintf(formatString, r.Name, float64(v)/r.Divisor, time.Now().Unix())
 
@@ -233,7 +233,7 @@ func (c *config) inCache(client *modbus.ModbusClient, base, count uint16) ([]uin
 
 	for n := range c.caches {
 		if c.caches[n].client == client {
-			l := uint16(len(c.caches[n].vals)) //nolint:G115
+			l := uint16(len(c.caches[n].vals)) //nolint:gosec // disable G115
 			if (c.caches[n].start <= base && c.caches[n].start+l >= base) &&
 				(c.caches[n].start+l >= base+count) {
 				// Use cached value
