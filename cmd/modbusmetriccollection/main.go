@@ -210,10 +210,10 @@ func main() {
 
 // cleanInvalidCaches removes expired cache entries, assumes we have lock
 func (c *config) cleanInvalidCaches() {
-	cvt := c.CacheValidTime.Seconds()
+	cvt := int64(c.CacheValidTime.Seconds())
 	n := 0
 	for n < len(c.caches) {
-		if c.caches[n].timestamp < (time.Now().Unix() - c.cvt) {
+		if c.caches[n].timestamp < (time.Now().Unix() - cvt) {
 			// Expired
 			c.caches = append(c.caches[:n], c.caches[n+1:]...)
 		} else {
