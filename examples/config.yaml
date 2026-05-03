@@ -11,7 +11,7 @@ sources:
     pause: 5ms
     lowWordFirst: false
     registers:
-      - id: 33130
+      - ID: 33130
         name: grid
         description: Power from grid (negative is sold)
         openMetricType: gauge
@@ -20,7 +20,7 @@ sources:
         isSigned: true
         divisor: 1
         unit: W
-      - id: 34622
+      - ID: 34622
         name: "solar_production"
         description: "Current solar production"
         openMetricType: "gauge"
@@ -29,7 +29,7 @@ sources:
         divisor: 1
         unit: "W"
         isSigned: false
-      - id: 33139
+      - ID: 33139
         name: "soc"
         description: "Battery state of charge"
         openMetricType: "gauge"
@@ -38,7 +38,7 @@ sources:
         divisor: 1
         unit: "%"
         isSigned: false
-      - id: 33140
+      - ID: 33140
         name: "soh"
         description: "Battery state of health"
         openMetricType: "gauge"
@@ -47,7 +47,7 @@ sources:
         divisor: 1
         unit: "%"
         isSigned: false
-      - id: 33149
+      - ID: 33149
         name: "battery"
         description: "Power from battery"
         openMetricType: "gauge"
@@ -56,7 +56,7 @@ sources:
         divisor: 1
         unit: "W"
         isSigned: true
-      - id: 33135
+      - ID: 33135
         name: "battery_charge_status"
         description: "Whatever battery is in standby, charging or discharging"
         openMetricType: "gauge"
@@ -65,7 +65,7 @@ sources:
         divisor: 1
         unit: ""
         isSigned: false
-      - id: 33147
+      - ID: 33147
         name: "load"
         description: "Current system load"
         openMetricType: "gauge"
@@ -79,7 +79,7 @@ sources:
     pause: 0.05s
     lowWordFirst: false
     registers:
-      - id: 1
+      - ID: 1
         name: "current_outdoor_temperature"
         description: "Current outdoor temperature"
         openMetricType: "gauge"
@@ -88,7 +88,7 @@ sources:
         divisor: 10
         unit: "°C"
         isSigned: true
-      - id: 2
+      - ID: 2
         name: "supply_line_ep23bt2"
         description: "Supply line (EP23-BT2)"
         openMetricType: "gauge"
@@ -97,7 +97,7 @@ sources:
         divisor: 10
         unit: "°C"
         isSigned: true
-      - id: 3
+      - ID: 3
         name: "supply_line_ep22bt2"
         description: "Supply line (EP22-BT2)"
         openMetricType: "gauge"
@@ -106,7 +106,7 @@ sources:
         divisor: 10
         unit: "°C"
         isSigned: true
-      - id: 4
+      - ID: 4
         name: "supply_line_ep21bt2"
         description: "Supply line (EP21-BT2)"
         openMetricType: "gauge"
@@ -115,7 +115,7 @@ sources:
         divisor: 10
         unit: "°C"
         isSigned: true
-      - id: 5
+      - ID: 5
         name: "supply_line_bt2"
         description: "Supply line (BT2)"
         openMetricType: "gauge"
@@ -124,7 +124,7 @@ sources:
         divisor: 10
         unit: "°C"
         isSigned: true
-      - id: 7
+      - ID: 7
         name: "return_line_bt3"
         description: "Return line (BT3)"
         openMetricType: "gauge"
@@ -133,7 +133,7 @@ sources:
         divisor: 10
         unit: "°C"
         isSigned: true
-      - id: 8
+      - ID: 8
         name: "hot_water_top"
         description: "Hot water top (BT7)"
         openMetricType: "gauge"
@@ -142,7 +142,7 @@ sources:
         divisor: 10
         unit: "°C"
         isSigned: true
-      - id: 9
+      - ID: 9
         name: "hot_water_charging"
         description: "Hot water charging (BT6)"
         openMetricType: "gauge"
@@ -151,7 +151,7 @@ sources:
         divisor: 10
         unit: "°C"
         isSigned: true
-      - id: 10
+      - ID: 10
         name: "brine_in"
         description: "Brine in (BT10)"
         openMetricType: "gauge"
@@ -160,7 +160,7 @@ sources:
         divisor: 10
         unit: "°C"
         isSigned: true
-      - id: 11
+      - ID: 11
         name: "brine_out"
         description: "Brine out (BT11)"
         openMetricType: "gauge"
@@ -169,7 +169,7 @@ sources:
         divisor: 10
         unit: "°C"
         isSigned: true
-      - id: 12
+      - ID: 12
         name: "condensor_supply_line"
         description: "Condensor supply line (BT12)"
         openMetricType: "gauge"
@@ -178,7 +178,7 @@ sources:
         divisor: 10
         unit: "°C"
         isSigned: true
-      - id: 13
+      - ID: 13
         name: "discharge"
         description: "Discharge (BT14)"
         openMetricType: "gauge"
@@ -187,7 +187,7 @@ sources:
         divisor: 10
         unit: "°C"
         isSigned: true
-      - id: 14
+      - ID: 14
         name: "liquid_line"
         description: "Liquid line (BT15)"
         openMetricType: "gauge"
@@ -196,7 +196,7 @@ sources:
         divisor: 10
         unit: "°C"
         isSigned: true
-      - id: 16
+      - ID: 16
         name: "suction_gas"
         description: "Suction gas (BT17)"
         openMetricType: "gauge"
@@ -205,7 +205,7 @@ sources:
         divisor: 10
         unit: "°C"
         isSigned: true
-      - id: 21
+      - ID: 21
         name: "collector_in"
         description: "Collector in (AZ10-BT26)"
         openMetricType: "gauge"
@@ -214,7 +214,7 @@ sources:
         divisor: 10
         unit: "°C"
         isSigned: true
-      - id: 22
+      - ID: 22
         name: "collector_out"
         description: "Collector out (AZ10-BT27)"
         openMetricType: "gauge"
@@ -223,7 +223,7 @@ sources:
         divisor: 10
         unit: "°C"
         isSigned: true
-      - id: 31
+      - ID: 31
         name: "return_line_eq1bt65"
         description: "Return line (EQ1-BT65)"
         openMetricType: "gauge"
@@ -232,7 +232,7 @@ sources:
         divisor: 10
         unit: "°C"
         isSigned: true
-      - id: 36
+      - ID: 36
         name: "temperature_limiter_eb100fd1"
         description: "Temperature limiter (EB100-FD1)"
         openMetricType: "gauge"
@@ -241,7 +241,7 @@ sources:
         divisor: 1
         unit: ""
         isSigned: true
-      - id: 37
+      - ID: 37
         name: "average_temperature"
         description: "Average temperature (BT1)"
         openMetricType: "gauge"
@@ -250,7 +250,7 @@ sources:
         divisor: 10
         unit: "°C"
         isSigned: true
-      - id: 40
+      - ID: 40
         name: "flow_sensor_bf1"
         description: "Flow sensor (BF1)"
         openMetricType: "gauge"
@@ -259,7 +259,7 @@ sources:
         divisor: 10
         unit: "l/min"
         isSigned: true
-      - id: 2176
+      - ID: 2176
         name: "current_power_w"
         description: "Current power (2176)"
         openMetricType: "gauge"
@@ -268,7 +268,7 @@ sources:
         divisor: 1
         unit: "W"
         isSigned: false
-      - id: 2305
+      - ID: 2305
         name: "energy_log_current_power_consumption"
         description: "Energy log current power consumption"
         openMetricType: "gauge"
@@ -277,7 +277,7 @@ sources:
         divisor: 100
         unit: "kW"
         isSigned: false
-      - id: 2408
+      - ID: 2408
         name: "energy_log_current_power_consumption_components"
         description: "Energy log current power consumption components"
         openMetricType: "gauge"
@@ -286,7 +286,7 @@ sources:
         divisor: 100
         unit: "kW"
         isSigned: false
-      - id: 2335
+      - ID: 2335
         name: "compressor_total_time_energy_storage_main_unit_ep14"
         description: "Compressor total time energy storage main unit (EP14)"
         openMetricType: "counter"
@@ -295,7 +295,7 @@ sources:
         divisor: 1
         unit: "h"
         isSigned: false
-      - id: 2337
+      - ID: 2337
         name: "compressor_total_time_energy_storage_main_unit_ep15"
         description: "Compressor total time energy storage main unit (EP15)"
         openMetricType: "counter"
@@ -304,7 +304,7 @@ sources:
         divisor: 1
         unit: "h"
         isSigned: false
-      - id: 2339
+      - ID: 2339
         name: "compressor_total_time_energy_storage_heat_pump_1_ep14"
         description: "Compressor total time energy storage heat pump 1 (EP14)"
         openMetricType: "counter"
@@ -313,7 +313,7 @@ sources:
         divisor: 1
         unit: "h"
         isSigned: false
-      - id: 2341
+      - ID: 2341
         name: "compressor_total_time_energy_storage_heat_pump_1_ep15"
         description: "Compressor total time energy storage heat pump 1 (EP15)"
         openMetricType: "counter"
@@ -322,7 +322,7 @@ sources:
         divisor: 1
         unit: "h"
         isSigned: false
-      - id: 2343
+      - ID: 2343
         name: "compressor_total_time_energy_storage_heat_pump_2_ep14"
         description: "Compressor total time energy storage heat pump 2 (EP14)"
         openMetricType: "counter"
@@ -331,7 +331,7 @@ sources:
         divisor: 1
         unit: "h"
         isSigned: false
-      - id: 2345
+      - ID: 2345
         name: "compressor_total_time_energy_storage_heat_pump_2_ep15"
         description: "Compressor total time energy storage heat pump 2 (EP15)"
         openMetricType: "counter"
@@ -340,7 +340,7 @@ sources:
         divisor: 1
         unit: "h"
         isSigned: false
-      - id: 2727
+      - ID: 2727
         name: "current_power"
         description: "Current power (2727)"
         openMetricType: "gauge"
@@ -349,7 +349,7 @@ sources:
         divisor: 100
         unit: "kW"
         isSigned: false
-      - id: 1577
+      - ID: 1577
         name: "heating_including_added_heat"
         description: "Heating including added heat"
         openMetricType: "counter"
@@ -358,7 +358,7 @@ sources:
         divisor: 10
         unit: "kWh"
         isSigned: false
-      - id: 1575
+      - ID: 1575
         name: "hot_water_including_added_heat"
         description: "Hot water including added heat"
         openMetricType: "counter"
@@ -367,7 +367,7 @@ sources:
         divisor: 10
         unit: "kWh"
         isSigned: false
-      - id: 1583
+      - ID: 1583
         name: "hot_water_compressor_only"
         description: "Hot water compressor only"
         openMetricType: "counter"
@@ -376,7 +376,7 @@ sources:
         divisor: 10
         unit: "kWh"
         isSigned: false
-      - id: 1585
+      - ID: 1585
         name: "heating_compressor_only"
         description: "Heating compressor only"
         openMetricType: "counter"
@@ -385,7 +385,7 @@ sources:
         divisor: 10
         unit: "kWh"
         isSigned: false
-      - id: 3821
+      - ID: 3821
         name: "total_production"
         description: "Total production"
         openMetricType: "counter"
@@ -394,7 +394,7 @@ sources:
         divisor: 10
         unit: "kWh"
         isSigned: false
-      - id: 3823
+      - ID: 3823
         name: "total_consumption"
         description: "Total consumption"
         openMetricType: "counter"
@@ -403,7 +403,7 @@ sources:
         divisor: 10
         unit: "kWh"
         isSigned: false
-      - id: 3804
+      - ID: 3804
         name: "priority"
         description: "Priority"
         openMetricType: "gauge"
@@ -412,7 +412,7 @@ sources:
         divisor: 1
         unit: ""
         isSigned: false
-      - id: 1029
+      - ID: 1029
         name: "operating_mode_internal_additional_heat"
         description: "Operating mode internal additional heat"
         openMetricType: "gauge"
@@ -421,7 +421,7 @@ sources:
         divisor: 1
         unit: ""
         isSigned: false
-      - id: 1038
+      - ID: 1038
         name: "current_hot_water_mode_without_spasc"
         description: "Current hot water mode without SPA/SC"
         openMetricType: "gauge"
@@ -430,7 +430,7 @@ sources:
         divisor: 1
         unit: ""
         isSigned: false
-      - id: 1041
+      - ID: 1041
         name: "min_frequency_compressor"
         description: "Minimum frequency compressor"
         openMetricType: "gauge"
@@ -439,7 +439,7 @@ sources:
         divisor: 1
         unit: "Hz"
         isSigned: false
-      - id: 1042
+      - ID: 1042
         name: "max_frequency_compressor"
         description: "Maximum frequency compressor"
         openMetricType: "gauge"
@@ -448,7 +448,7 @@ sources:
         divisor: 1
         unit: "Hz"
         isSigned: false
-      - id: 1046
+      - ID: 1046
         name: "compressor_frequency_current"
         description: "Compressor frequency current"
         openMetricType: "gauge"
@@ -457,7 +457,7 @@ sources:
         divisor: 1
         unit: "Hz"
         isSigned: false
-      - id: 1065
+      - ID: 1065
         name: "compressor_frequency"
         description: "Compressor frequency"
         openMetricType: "gauge"
@@ -466,7 +466,7 @@ sources:
         divisor: 1
         unit: "Hz"
         isSigned: false
-      - id: 1047
+      - ID: 1047
         name: "inverter_temperature"
         description: "Inverter temperature"
         openMetricType: "gauge"
@@ -475,7 +475,7 @@ sources:
         divisor: 10
         unit: "°C"
         isSigned: true
-      - id: 1048
+      - ID: 1048
         name: "compressor_power_input"
         description: "Compressor power input"
         openMetricType: "gauge"
@@ -484,7 +484,7 @@ sources:
         divisor: 1
         unit: "W"
         isSigned: false
-      - id: 1052
+      - ID: 1052
         name: "current_compressor"
         description: "Current compressor"
         openMetricType: "gauge"

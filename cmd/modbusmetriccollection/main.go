@@ -15,7 +15,7 @@ import (
 )
 
 type config struct {
-	VmURL   string   `yaml:"vmURL"`
+	VMURL   string   `yaml:"VMURL"`
 	Sources []source `yaml:"sources"`
 
 	ModbusTimeout  time.Duration `yaml:"modbusTimeout"`
@@ -44,7 +44,7 @@ type source struct {
 }
 
 type ri struct {
-	Id       uint16         `yaml:"id`
+	Id       uint16         `yaml:"ID`
 	Name     string         `yaml:"name"`
 	Desc     string         `yaml:"description"`
 	OmType   string         `yaml:"openMetricType"`
@@ -57,7 +57,7 @@ type ri struct {
 
 var once sync.Once
 
-func (c *config) pushToVM(lines []string, job string) error {
+func (c *config) pushToVM(lines []string) error {
 	once.Do(func() {
 		c.httpClient = &http.Client{}
 	})
@@ -67,7 +67,7 @@ func (c *config) pushToVM(lines []string, job string) error {
 		buf.Write([]byte(lines[s] + "\n"))
 	}
 
-	req, err := http.NewRequest("POST", c.VmURL, buf)
+	req, err := http.NewRequest("POST", c.VMURL, buf)
 	if err != nil {
 		fmt.Printf("error from NewRequest: %v", err)
 		return err
@@ -103,7 +103,7 @@ func getOpenClient(connectTo string, to time.Duration) *modbus.ModbusClient {
 	var client *modbus.ModbusClient
 	var err error
 
-	for true {
+	for {
 		client, err = modbus.NewClient(&modbus.ClientConfiguration{
 			URL:     "tcp://" + connectTo,
 			Timeout: to})
@@ -119,7 +119,7 @@ func getOpenClient(connectTo string, to time.Duration) *modbus.ModbusClient {
 
 	}
 
-	for true {
+	for {
 		err = client.Open()
 		if err == nil {
 			return client
@@ -144,9 +144,8 @@ func makeLine(s source, r ri, vals []uint16) string {
 
 		if r.IsSigned {
 			return fmt.Sprintf(formatString, r.Name, float64(int16(vals[0]))/r.Divisor, time.Now().Unix())
-		} else {
-			return fmt.Sprintf(formatString, r.Name, float64(vals[0])/r.Divisor, time.Now().Unix())
 		}
+		return fmt.Sprintf(formatString, r.Name, float64(vals[0])/r.Divisor, time.Now().Unix())
 	}
 
 	if r.Length == 2 {
@@ -157,9 +156,9 @@ func makeLine(s source, r ri, vals []uint16) string {
 		}
 		if r.IsSigned {
 			return fmt.Sprintf(formatString, r.Name, float64(int32(v))/r.Divisor, time.Now().Unix())
-		} else {
-			return fmt.Sprintf(formatString, r.Name, float64(v)/r.Divisor, time.Now().Unix())
 		}
+		return fmt.Sprintf(formatString, r.Name, float64(v)/r.Divisor, time.Now().Unix())
+
 	}
 	return ""
 }
@@ -175,7 +174,7 @@ func pollAndPush(c *config, s source) {
 
 	slices.SortFunc(s.Regs, regCmp)
 
-	for true {
+	for {
 		time.Sleep(c.UpdateDelay)
 		lines := make([]string, 0)
 
@@ -193,7 +192,10 @@ func pollAndPush(c *config, s source) {
 
 			time.Sleep(s.Pause)
 		}
-		c.pushToVM(lines, s.Name)
+		err := c.pushToVM(lines)
+		if err != nil {
+			fmt.Printf("pushing to metrics collection failed: %v", err)
+		}
 	}
 }
 
@@ -240,7 +242,7 @@ func (c *config) inCache(client *modbus.ModbusClient, base, count uint16) ([]uin
 			}
 		}
 	}
-	return nil, fmt.Errorf("Not found")
+	return nil, fmt.Errorf("not found")
 }
 
 func (c *config) doReadRegisters(
@@ -298,8 +300,8 @@ func (c *config) doReadRegisters(
 		fmt.Printf("Read at %v of %v entries failed with %w (count %v)\n", base, toRead, err, i)
 		time.Sleep(c.ModbusTimeout)
 
-		i += 1
-		toRead = toRead / 2 // try less next time
+		i++
+		toRead /= 2 // try less next time
 		if toRead <= count || toRead > 256 {
 			// But we need to fulfill the request
 			toRead = count
