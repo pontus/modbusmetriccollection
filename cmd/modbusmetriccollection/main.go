@@ -44,7 +44,7 @@ type source struct {
 }
 
 type ri struct {
-	Id       uint16         `yaml:"ID`
+	ID       uint16         `yaml:"ID`
 	Name     string         `yaml:"name"`
 	Desc     string         `yaml:"description"`
 	OmType   string         `yaml:"openMetricType"`
@@ -91,7 +91,7 @@ func readConfig() *config {
 
 	err = yaml.Unmarshal(yamlData, &c)
 	if err != nil {
-		fmt.Printf("failed to read config: %w", err)
+		fmt.Printf("failed to read config: %v", err)
 		panic("bye")
 	}
 
@@ -111,7 +111,7 @@ func getOpenClient(connectTo string, to time.Duration) *modbus.ModbusClient {
 		if err == nil {
 			break
 		}
-		fmt.Printf("Modbus connection to %s failed: %w\n",
+		fmt.Printf("Modbus connection to %s failed: %v\n",
 			connectTo,
 			err)
 
@@ -125,14 +125,12 @@ func getOpenClient(connectTo string, to time.Duration) *modbus.ModbusClient {
 			return client
 		}
 
-		fmt.Printf("Open for modbus client at %s failed: %w\n",
+		fmt.Printf("Open for modbus client at %s failed: %v\n",
 			connectTo,
 			err)
 
 		time.Sleep(to)
 	}
-
-	return nil
 }
 
 // makeLine makes a line for the metric from the values
@@ -143,7 +141,8 @@ func makeLine(s source, r ri, vals []uint16) string {
 	if r.Length == 1 {
 
 		if r.IsSigned {
-			return fmt.Sprintf(formatString, r.Name, float64(int16(vals[0]))/r.Divisor, time.Now().Unix())
+			return fmt.Sprintf(formatString, r.Name,
+				float64(int16(vals[0]))/r.Divisor, time.Now().Unix()) //nolint:G115
 		}
 		return fmt.Sprintf(formatString, r.Name, float64(vals[0])/r.Divisor, time.Now().Unix())
 	}
@@ -155,7 +154,8 @@ func makeLine(s source, r ri, vals []uint16) string {
 			v = uint32(vals[1])<<16 + uint32(vals[0])
 		}
 		if r.IsSigned {
-			return fmt.Sprintf(formatString, r.Name, float64(int32(v))/r.Divisor, time.Now().Unix())
+			return fmt.Sprintf(formatString, r.Name,
+				float64(int32(v))/r.Divisor, time.Now().Unix()) //nolint:G115
 		}
 		return fmt.Sprintf(formatString, r.Name, float64(v)/r.Divisor, time.Now().Unix())
 
@@ -164,7 +164,7 @@ func makeLine(s source, r ri, vals []uint16) string {
 }
 
 func regCmp(a, b ri) int {
-	return cmp.Compare(a.Id, b.Id)
+	return cmp.Compare(a.ID, b.ID)
 }
 
 // pollAndPush is an eternal loop polling data, pushing and sleeping
@@ -180,9 +180,9 @@ func pollAndPush(c *config, s source) {
 
 		for _, r := range s.Regs {
 
-			vals, err := c.doReadRegisters(client, r.Id, r.Length, r.MbType)
+			vals, err := c.doReadRegisters(client, r.ID, r.Length, r.MbType)
 			if err != nil {
-				fmt.Printf("Error: poll failed  %w\n", err)
+				fmt.Printf("Error: poll failed  %v\n", err)
 				continue
 			}
 			lines = append(lines, fmt.Sprintf("# TYPE %v %v", r.Name, r.OmType))
@@ -233,7 +233,7 @@ func (c *config) inCache(client *modbus.ModbusClient, base, count uint16) ([]uin
 
 	for n := range c.caches {
 		if c.caches[n].client == client {
-			l := uint16(len(c.caches[n].vals))
+			l := uint16(len(c.caches[n].vals)) //nolint:G115
 			if (c.caches[n].start <= base && c.caches[n].start+l >= base) &&
 				(c.caches[n].start+l >= base+count) {
 				// Use cached value
@@ -281,7 +281,8 @@ func (c *config) doReadRegisters(
 	i := 0
 
 	for i < 400 {
-		v, err := client.ReadRegisters(base, toRead, t)
+		var v []uint16
+		v, err = client.ReadRegisters(base, toRead, t)
 		if err == nil {
 
 			// Note for future use
@@ -297,7 +298,7 @@ func (c *config) doReadRegisters(
 			return v[:count], err
 		}
 
-		fmt.Printf("Read at %v of %v entries failed with %w (count %v)\n", base, toRead, err, i)
+		fmt.Printf("Read at %v of %v entries failed with %v (count %v)\n", base, toRead, err, i)
 		time.Sleep(c.ModbusTimeout)
 
 		i++
