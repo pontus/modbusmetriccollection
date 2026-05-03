@@ -44,7 +44,7 @@ type source struct {
 }
 
 type ri struct {
-	ID       uint16         `yaml:"ID`
+	ID       uint16         `yaml:"ID"`
 	Name     string         `yaml:"name"`
 	Desc     string         `yaml:"description"`
 	OmType   string         `yaml:"openMetricType"`
