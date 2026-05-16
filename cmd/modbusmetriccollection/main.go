@@ -163,7 +163,7 @@ func makeLine(s source, r ri, vals []uint16) string {
 	return ""
 }
 
-// Delegate comparision of registers to their ID
+// Delegate comparison of registers to their ID
 func regCmp(a, b ri) int {
 	return cmp.Compare(a.ID, b.ID)
 }
