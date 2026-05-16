@@ -163,6 +163,7 @@ func makeLine(s source, r ri, vals []uint16) string {
 	return ""
 }
 
+// Delegate comparison of registers to their ID
 func regCmp(a, b ri) int {
 	return cmp.Compare(a.ID, b.ID)
 }
@@ -174,7 +175,14 @@ func pollAndPush(c *config, s source) {
 
 	slices.SortFunc(s.Regs, regCmp)
 
+	lastGoodFetch := time.Now()
+
 	for {
+		// Check if we have too many failures and bail out if that happens
+		if time.Now().After(lastGoodFetch.Add(5 * c.UpdateDelay)) {
+			os.Exit(1)
+		}
+
 		time.Sleep(c.UpdateDelay)
 		lines := make([]string, 0)
 
@@ -185,6 +193,9 @@ func pollAndPush(c *config, s source) {
 				fmt.Printf("Error: poll failed  %v\n", err)
 				continue
 			}
+
+			lastGoodFetch = time.Now()
+
 			lines = append(lines, fmt.Sprintf("# TYPE %v %v", r.Name, r.OmType))
 			lines = append(lines, fmt.Sprintf("# HELP %v %v", r.Name, r.Desc))
 			lines = append(lines, fmt.Sprintf("# UNIT %v %v", r.Name, r.Unit))
