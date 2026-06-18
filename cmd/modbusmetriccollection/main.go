@@ -18,14 +18,15 @@ type config struct {
 	VMURL   string   `yaml:"VMURL"`
 	Sources []source `yaml:"sources"`
 
-	ModbusTimeout  time.Duration `yaml:"modbusTimeout"`
-	PushTimeout    time.Duration `yaml:"pushTimeout"`
-	UpdateDelay    time.Duration `yaml:"updateDelay"`
-	CacheValidTime time.Duration `yaml:"cacheValidTime"`
-	httpClient     *http.Client
-	caches         []cache
-	goodLength     map[*modbus.ModbusClient]map[uint16]uint16
-	mutex          sync.Mutex
+	ModbusTimeout   time.Duration `yaml:"modbusTimeout"`
+	PushTimeout     time.Duration `yaml:"pushTimeout"`
+	UpdateDelay     time.Duration `yaml:"updateDelay"`
+	CacheValidTime  time.Duration `yaml:"cacheValidTime"`
+	LongestFailTime time.Duration `yaml:"longestFailTime"`
+	httpClient      *http.Client
+	caches          []cache
+	goodLength      map[*modbus.ModbusClient]map[uint16]uint16
+	mutex           sync.Mutex
 }
 
 type cache struct {
@@ -178,10 +179,6 @@ func pollAndPush(c *config, s source) {
 	lastGoodFetch := time.Now()
 
 	for {
-		// Check if we have too many failures and bail out if that happens
-		if time.Now().After(lastGoodFetch.Add(5 * c.UpdateDelay)) {
-			os.Exit(1)
-		}
 
 		time.Sleep(c.UpdateDelay)
 		lines := make([]string, 0)
@@ -189,8 +186,17 @@ func pollAndPush(c *config, s source) {
 		for _, r := range s.Regs {
 
 			vals, err := c.doReadRegisters(client, r.ID, r.Length, r.MbType)
+
+			// Check if we have too many failures and bail out if that happens
+
+			if err != nil && time.Now().After(lastGoodFetch.Add(c.LongestFailTime)) {
+				fmt.Printf("Giving up after failure persists too long %v\n", err)
+				os.Exit(1)
+			}
+
 			if err != nil {
 				fmt.Printf("Error: poll failed  %v\n", err)
+
 				continue
 			}
 

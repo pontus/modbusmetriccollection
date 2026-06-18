@@ -5,6 +5,7 @@ modbusTimeout: 1s
 pushTimeout: 10s
 updateDelay: 5s
 cacheValidTime: 10s
+longestFailTime: 2m
 sources:
   - host: 192.168.25.147:502
     name: solis
