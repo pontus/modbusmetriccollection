@@ -142,7 +142,8 @@ func (r *rotatingWriter) rotate() error {
 	if err == nil && st.ModTime().Format(time.DateOnly) == time.Now().Format(time.DateOnly) {
 		// File exists and is newish, continue writing to it
 
-		f, err := os.OpenFile(LOGFILENAME, os.O_APPEND|os.O_WRONLY, 0644)
+		var f *os.File
+		f, err = os.OpenFile(LOGFILENAME, os.O_APPEND|os.O_WRONLY, 0644)
 		if err != nil {
 			return fmt.Errorf("couldn't create new file %s for rotation: %w", newName, err)
 		}
@@ -154,7 +155,7 @@ func (r *rotatingWriter) rotate() error {
 	if err == nil {
 		// File exist and is older, needs moving out of the way
 
-		nameForPrevious := findName(fmt.Sprint("%s.%s", LOGFILENAME, time.Now().Format(time.DateOnly)))
+		nameForPrevious := findName(fmt.Sprintf("%s.%s", LOGFILENAME, time.Now().Format(time.DateOnly)))
 		err = os.Rename(LOGFILENAME, nameForPrevious)
 		if err != nil {
 			return fmt.Errorf("error while renaming logfile %s -> %s: %w", LOGFILENAME, nameForPrevious, err)
