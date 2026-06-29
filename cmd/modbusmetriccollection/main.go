@@ -298,7 +298,7 @@ func pollAndPush(c *config, s source) {
 
 		for _, r := range s.Regs {
 
-			vals, err := c.doReadRegisters(client, r.ID, r.Length, r.MbType)
+			vals, err := c.doReadRegisters(client, r.ID, r.Length, r.MbType, s.Name)
 
 			// Check if we have too many failures and bail out if that happens
 
@@ -379,7 +379,8 @@ func (c *config) doReadRegisters(
 	client *modbus.ModbusClient,
 	base,
 	count uint16,
-	t modbus.RegType) ([]uint16, error) {
+	t modbus.RegType,
+	mbSource string) ([]uint16, error) {
 
 	c.mutex.Lock()
 
@@ -435,7 +436,7 @@ func (c *config) doReadRegisters(
 			return v[:count], err
 		}
 
-		c.logger.Printf("Read at %v of %v entries failed with %v (count %v)\n", base, toRead, err, i)
+		c.logger.Printf("Read at %v of %v entries failed with %v (count %v) for %s\n", base, toRead, err, i, mbSource)
 
 		if toRead == count {
 			// If failing but not because we're asking too much, back off!
