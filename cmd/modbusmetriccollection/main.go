@@ -3,7 +3,10 @@ package main
 import (
 	"bytes"
 	"cmp"
+	"crypto/rand"
 	"fmt"
+	"io"
+	"log"
 	"net/http"
 	"os"
 	"slices"
@@ -13,6 +16,8 @@ import (
 	"github.com/simonvetter/modbus"
 	"gopkg.in/yaml.v3"
 )
+
+const LOGFILENAME string = "modbusmetriccollection.log"
 
 type config struct {
 	VMURL   string   `yaml:"VMURL"`
@@ -27,6 +32,7 @@ type config struct {
 	caches          []cache
 	goodLength      map[*modbus.ModbusClient]map[uint16]uint16
 	mutex           sync.Mutex
+	logger          *log.Logger
 }
 
 type cache struct {
@@ -70,29 +76,136 @@ func (c *config) pushToVM(lines []string) error {
 
 	req, err := http.NewRequest("POST", c.VMURL, buf)
 	if err != nil {
-		fmt.Printf("error from NewRequest: %v", err)
+		c.logger.Printf("error from NewRequest: %v", err)
 		return err
 	}
 	_, err = c.httpClient.Do(req)
 
 	if err != nil {
-		fmt.Printf("error from Do: %v", err)
+		c.logger.Printf("error from Do: %v", err)
 		return err
 	}
 
 	return err
 }
 
+type rotatingWriter struct {
+	current          io.WriteCloser
+	currentTimeStamp time.Time
+	mutex            sync.Mutex
+}
+
+func findName(s string) string {
+
+	return s
+}
+
+func (r *rotatingWriter) rotate() error {
+	newName := fmt.Sprintf("%s.%s", LOGFILENAME, rand.Text())
+
+	r.currentTimeStamp = time.Now()
+
+	if r.current != nil {
+		// We already have a writer
+
+		err := r.current.Close()
+		if err != nil {
+			return err
+		}
+
+		yesterday := time.Now().AddDate(0, 0, -1).Format(time.DateOnly)
+		err = os.Rename(LOGFILENAME, fmt.Sprintf("%s.%s", LOGFILENAME, yesterday))
+
+		if err != nil {
+			return err
+		}
+
+		f, err := os.Create(newName)
+		if err != nil {
+			return fmt.Errorf("couldn't create new file %s for rotation: %w", newName, err)
+		}
+
+		r.current = f
+
+		return os.Rename(newName, LOGFILENAME)
+	}
+
+	// No writer yet
+
+	// Check if the file exists before we do anything
+	st, err := os.Stat(LOGFILENAME)
+
+	if err != nil && !os.IsNotExist(err) {
+		return fmt.Errorf("error while stating %s: %w", LOGFILENAME, err)
+	}
+
+	if err == nil && st.ModTime().Format(time.DateOnly) == time.Now().Format(time.DateOnly) {
+		// File exists and is newish, continue writing to it
+
+		var f *os.File
+		f, err = os.OpenFile(LOGFILENAME, os.O_APPEND|os.O_WRONLY, 0644)
+		if err != nil {
+			return fmt.Errorf("couldn't create new file %s for rotation: %w", newName, err)
+		}
+
+		r.current = f
+		return nil
+	}
+
+	if err == nil {
+		// File exist and is older, needs moving out of the way
+
+		nameForPrevious := findName(fmt.Sprintf("%s.%s", LOGFILENAME, time.Now().Format(time.DateOnly)))
+		err = os.Rename(LOGFILENAME, nameForPrevious)
+		if err != nil {
+			return fmt.Errorf("error while renaming logfile %s -> %s: %w", LOGFILENAME, nameForPrevious, err)
+		}
+
+	}
+
+	f, err := os.Create(newName)
+	if err != nil {
+		return fmt.Errorf("couldn't create new file %s for rotation: %w", newName, err)
+	}
+
+	r.current = f
+
+	return os.Rename(newName, LOGFILENAME)
+
+}
+
+func (r *rotatingWriter) Write(p []byte) (n int, err error) {
+	r.mutex.Lock()
+	defer r.mutex.Unlock()
+
+	if r.current != nil && time.Now().Format(time.DateOnly) == r.currentTimeStamp.Format(time.DateOnly) {
+		return r.current.Write(p)
+
+	}
+
+	err = r.rotate()
+	if err != nil {
+		return 0, err
+	}
+
+	return r.current.Write(p)
+}
+
 func readConfig() *config {
+
+	c := config{}
+
+	c.logger = log.New(&rotatingWriter{}, "", log.LstdFlags)
+
 	yamlData, err := os.ReadFile("config.yaml")
 	if err != nil {
+		c.logger.Printf("failed to open config: %v", err)
 		panic("can't open/read config")
 	}
-	c := config{}
 
 	err = yaml.Unmarshal(yamlData, &c)
 	if err != nil {
-		fmt.Printf("failed to read config: %v", err)
+		c.logger.Printf("failed to read config: %v", err)
 		panic("bye")
 	}
 
@@ -100,23 +213,23 @@ func readConfig() *config {
 }
 
 // getOpenClient makes sure to return a usable modbus client (or hang trying)
-func getOpenClient(connectTo string, to time.Duration) *modbus.ModbusClient {
+func getOpenClient(c *config, connectTo string) *modbus.ModbusClient {
 	var client *modbus.ModbusClient
 	var err error
 
 	for {
 		client, err = modbus.NewClient(&modbus.ClientConfiguration{
 			URL:     "tcp://" + connectTo,
-			Timeout: to})
+			Timeout: c.ModbusTimeout})
 
 		if err == nil {
 			break
 		}
-		fmt.Printf("Modbus connection to %s failed: %v\n",
+		c.logger.Printf("Modbus connection to %s failed: %v\n",
 			connectTo,
 			err)
 
-		time.Sleep(to)
+		time.Sleep(c.ModbusTimeout)
 
 	}
 
@@ -126,11 +239,11 @@ func getOpenClient(connectTo string, to time.Duration) *modbus.ModbusClient {
 			return client
 		}
 
-		fmt.Printf("Open for modbus client at %s failed: %v\n",
+		c.logger.Printf("Open for modbus client at %s failed: %v\n",
 			connectTo,
 			err)
 
-		time.Sleep(to)
+		time.Sleep(c.ModbusTimeout)
 	}
 }
 
@@ -172,7 +285,7 @@ func regCmp(a, b ri) int {
 // pollAndPush is an eternal loop polling data, pushing and sleeping
 func pollAndPush(c *config, s source) {
 
-	client := getOpenClient(s.Host, c.ModbusTimeout)
+	client := getOpenClient(c, s.Host)
 
 	slices.SortFunc(s.Regs, regCmp)
 
@@ -190,12 +303,12 @@ func pollAndPush(c *config, s source) {
 			// Check if we have too many failures and bail out if that happens
 
 			if err != nil && time.Now().After(lastGoodFetch.Add(c.LongestFailTime)) {
-				fmt.Printf("Giving up after failure persists too long %v\n", err)
+				c.logger.Printf("Giving up after failure persists too long %v\n", err)
 				os.Exit(1)
 			}
 
 			if err != nil {
-				fmt.Printf("Error: poll failed  %v\n", err)
+				c.logger.Printf("Error: poll failed  %v\n", err)
 
 				continue
 			}
@@ -211,7 +324,7 @@ func pollAndPush(c *config, s source) {
 		}
 		err := c.pushToVM(lines)
 		if err != nil {
-			fmt.Printf("pushing to metrics collection failed: %v", err)
+			c.logger.Printf("pushing to metrics collection failed: %v", err)
 		}
 	}
 }
@@ -322,7 +435,7 @@ func (c *config) doReadRegisters(
 			return v[:count], err
 		}
 
-		fmt.Printf("Read at %v of %v entries failed with %v (count %v)\n", base, toRead, err, i)
+		c.logger.Printf("Read at %v of %v entries failed with %v (count %v)\n", base, toRead, err, i)
 
 		if toRead == count {
 			// If failing but not because we're asking too much, back off!
